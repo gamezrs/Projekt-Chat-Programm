@@ -31,7 +31,7 @@ if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(LISTEN_PORT)
 
-    print(f"[NetworkCommunication] Listening on UDP port {LISTEN_PORT} messages...")
+    print(f"[NetworkCommunication] Listening on UDP port {LISTEN_PORT} for messages...")
 
     # Execute message listening on another thread to avoid freezing the program
     listening_thread = threading.Thread(target=listen_for_messages, daemon=True)
