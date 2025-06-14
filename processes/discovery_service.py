@@ -1,17 +1,17 @@
+import os
 import socket
 import threading
 import time
-from ..protocol import *
 
 
 HANDLE = "Client"
 BROADCAST_PORT = 4000
 LISTEN_PORT = 33333
 BUFFER_SIZE = 512
+known_users: dict[str, list[str]] = {}
 
 
-def on_receive(sender: socket._Address, message: str):
-    print(f"[DiscoveryService] Discovered {sender}")
+def on_receive(sender: tuple, message: str):
     interpret_discovery_message(sender, message)
 
 
@@ -30,10 +30,11 @@ def listen_for_messages():
         on_receive(sender, message)
 
 
-def interpret_discovery_message(sender: socket._Address, message: str):
+def interpret_discovery_message(sender: tuple, message: str):
     split_message = message.split(" ", 1)
     command = split_message.pop(0)
-    parameters = split_message.pop(0)
+    if len(split_message) > 0:
+        parameters = split_message.pop(0)
 
     match command:
         case "JOIN":
@@ -44,31 +45,38 @@ def interpret_discovery_message(sender: socket._Address, message: str):
             on_leave(sender, handle)
         case "WHO":
             on_who(sender)
-        case "KNOWUSERS":
-            on_knowusers(sender)
         case _:
             print(f"[Error] Command {command} does not exist")
 
 
-def on_join(sender: socket._Address, handle: str, port: int):
-    pass
+def on_join(sender: tuple, handle: str, port: int):
+    known_users.update({handle: [sender[0], port]})
 
 
-def on_leave(sender: socket._Address, handle: str):
-    pass
+def on_leave(sender: tuple, handle: str):
+    if not known_users.get(handle):
+        return
+    known_users.pop(handle)
 
 
-def on_who(sender: socket._Address):
-    pass
+def on_who(sender: tuple):
+    send(sender, command_knowusers(known_users))
 
 
-def on_knowusers(sender: socket._Address):
-    pass
+def command_knowusers(users: dict[str, list[str]]) -> str:
+    command = "KNOWUSERS"
+
+    for handle, address in users.items():
+        ip, port = address
+        command += f" {handle} {ip} {port},"
+    
+    return command
 
 
 if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(BROADCAST_PORT)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    sock.bind(("", BROADCAST_PORT))
 
     print(f"[DiscoveryService] Listening on UDP port {BROADCAST_PORT} for discoveries...")
 
@@ -80,4 +88,5 @@ if __name__ == "__main__":
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
+        os.remove("./discovery.lock")
         print("[DiscoveryService] Service stopped")

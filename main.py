@@ -1,4 +1,5 @@
 import os
+import time
 from multiprocessing import Process
 
 
@@ -20,14 +21,16 @@ if __name__ == "__main__":
     network_process = Process(target=start_network)
     discovery_process = Process(target=start_discovery)
 
-    ui_process.start()
-    network_process.start()
     if not os.path.exists("./discovery.lock"):
         with open("./discovery.lock", "w") as file:
             file.write("running")
         discovery_process.start()
+        time.sleep(1)
+    network_process.start()
+    time.sleep(1)
+    ui_process.start()
 
-    ui_process.join()
-    network_process.join()
     if discovery_process.is_alive():
         discovery_process.join()
+    network_process.join()
+    ui_process.join()
