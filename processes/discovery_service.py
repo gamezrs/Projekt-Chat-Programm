@@ -7,7 +7,7 @@ import time
 HANDLE = "Client"
 BROADCAST_PORT = 4000
 LISTEN_PORT = 33333
-BUFFER_SIZE = 512
+BUFFER_SIZE = 1024
 known_users: dict[str, list[str]] = {}
 
 

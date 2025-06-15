@@ -4,11 +4,26 @@ import socket
 HANDLE = "Client"
 BROADCAST_PORT = 4000
 LISTEN_PORT = 33333
-BUFFER_SIZE = 512
+BUFFER_SIZE = 1024
+CHUNK_SIZE = 512
 
 
 def send(message: str):
-    sock.sendto(message.encode(), ("127.0.0.1", LISTEN_PORT))
+    split_message = message.split(" ", 1)
+    command = split_message.pop(0)
+    if len(split_message) > 0:
+        parameters = split_message.pop(0)
+    
+    command_to_send = ""
+
+    match command:
+        case "msg":
+            command_to_send = f"MSG {parameters}"
+            sock.sendto(command_to_send.encode(), ("127.0.0.1", LISTEN_PORT))
+        case "img":
+            handle, file_path = parameters.split(" ", 1)
+            command_to_send = f"IMGREQUEST {handle} {file_path}"
+            sock.sendto(command_to_send.encode(), ("127.0.0.1", LISTEN_PORT))
 
 
 def send_commands():

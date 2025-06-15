@@ -1,3 +1,4 @@
+import os
 import socket
 import threading
 import time
@@ -6,8 +7,11 @@ import time
 HANDLE = "Client"
 BROADCAST_PORT = 4000
 LISTEN_PORT = 33333
-BUFFER_SIZE = 512
+BUFFER_SIZE = 1024
+IMAGE_PATH = os.getcwd() + "/images"
 known_users: dict[str, list[str]] = {}
+next_message_is_image = False
+image_buffer_size = 0
 
 
 def on_receive(sender: tuple, command: str):
@@ -15,8 +19,11 @@ def on_receive(sender: tuple, command: str):
     interpret_message(sender, command)
 
 
-def send(receiver, command: str):
-    sock.sendto(command.encode(), receiver)
+def send(receiver, command: str | bytes):
+    if isinstance(command, str):
+        command = command.encode()
+
+    sock.sendto(command, receiver)
     print(f"[NetworkCommunication] Sent to {receiver}: {command}")
 
 
@@ -25,26 +32,45 @@ def listen_for_messages():
     Permanently listening for messages
     """
     while True:
-        data, sender = sock.recvfrom(BUFFER_SIZE)
-        message = data.decode()
-        on_receive(sender, message)
+        global next_message_is_image
+
+        if not next_message_is_image:
+            data, sender = sock.recvfrom(BUFFER_SIZE)
+            message = data.decode()
+            on_receive(sender, message)
+        else:
+            global image_buffer_size
+            data, sender = sock.recvfrom(image_buffer_size)
+            on_img_binary(sender, data)
 
 
 def interpret_message(sender: tuple, message: str):
     split_message = message.split(" ", 1)
     command = split_message.pop(0)
-    parameters = split_message.pop(0)
+    if len(split_message) > 0:
+        parameters = split_message.pop(0)
 
     match command:
         case "LEAVE":
-            handle = parameters.split(" ")
+            parameters = parameters.split(" ", 1)
+            if not len(parameters) > 0: return
+            handle = parameters
             on_leave(sender, handle)
         case "MSG":
-            handle, text = parameters.split(" ", 1)
+            parameters = parameters.split(" ", 1)
+            if not len(parameters) > 1: return
+            handle, text = parameters
             on_msg(sender, handle, text)
         case "IMG":
-            handle, size = parameters.split(" ")
-            on_img(sender, size)
+            parameters = parameters.split(" ")
+            if not len(parameters) > 1: return
+            handle, size = parameters
+            on_img(sender, handle, int(size))
+        case "IMGREQUEST":
+            parameters = parameters.split(" ")
+            if not len(parameters) > 1: return
+            handle, file_path = parameters
+            on_imgrequest(sender, handle, file_path)
         case "KNOWUSERS":
             users = parameters.split(",")
             users.pop() # last entry, as it will be empty
@@ -73,17 +99,51 @@ def on_msg(sender: tuple, handle: str, text: str):
         send((ip, port), command_msg(handle, text))
 
 
-def on_img(sender: tuple, size: int):
-    pass
+def on_img(sender: tuple, handle: str, size: int):
+    global next_message_is_image
+    next_message_is_image = True
+
+    global image_buffer_size
+    image_buffer_size = size
+
+
+def on_imgrequest(sender: tuple, handle: str, file_path: str):
+    if not known_users.get(handle):
+        print("[Error] This user is unknown")
+        return
+    
+    if not os.path.exists(file_path):
+        print("[Error] File does not exist")
+        return
+    
+    with open(file_path, "rb") as file:
+        content = file.read()
+        size = len(content)
+        
+    ip, port = known_users.get(handle)
+    send((ip, port), command_img(handle, size))
+    send((ip, port), content)
+
+
+def on_img_binary(sender: tuple, content: bytes):
+    global next_message_is_image
+    next_message_is_image = False
+
+    global image_buffer_size
+    image_buffer_size = 0
+
+    file_name = f"{IMAGE_PATH}/{time.time_ns()}.png"
+
+    with open(file_name, "xb") as file:
+        file.write(content)
+    
+    os.startfile(file_name)
 
 
 def on_knowusers(sender: tuple, users: list[str]):
     for user in users:
-        print(user.split(" "))
         handle, ip, port = user.split(" ")
         known_users.update({handle: [ip, int(port)]})
-    
-    print(f"Known Users: {known_users}")
 
 
 def command_join(handle: str, port: int) -> str:
