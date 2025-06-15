@@ -1,0 +1,6 @@
+[general]
+handle = "Client"
+port = "2000-3000"
+whoisport = 4000
+autoreply = "Hey there, im away!"
+imagepath = "./images"

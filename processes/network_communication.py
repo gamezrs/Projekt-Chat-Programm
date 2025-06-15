@@ -1,14 +1,18 @@
 import os
 import socket
+import sys
 import threading
 import time
+import toml
 
 
-HANDLE = "Client"
-BROADCAST_PORT = 4000
-LISTEN_PORT = 33333
+CONFIG = toml.load("config.toml")
+HANDLE = CONFIG["general"]["handle"]
+BROADCAST_PORT = CONFIG["general"]["whoisport"]
+AUTO_REPLY = CONFIG["general"]["autoreply"]
+IMAGE_PATH = CONFIG["general"]["imagepath"]
 BUFFER_SIZE = 1024
-IMAGE_PATH = os.getcwd() + "/images"
+afk = False
 known_users: dict[str, list[str]] = {}
 next_message_is_image = False
 image_buffer_size = 0
@@ -75,6 +79,15 @@ def interpret_message(sender: tuple, message: str):
             users = parameters.split(",")
             users.pop() # last entry, as it will be empty
             on_knowusers(sender, users)
+        case "AFK":
+            global afk
+            if not afk:
+                print(f"[AFK] You are now AFK, The program will autoreply \"{AUTO_REPLY}\"")
+                afk = True
+            else:
+                print("[AFK] You are no longer AFK")
+                afk = False
+
         case _:
             print(f"[Error] Command {command} does not exist")
 
@@ -90,6 +103,11 @@ def on_msg(sender: tuple, handle: str, text: str):
         name = get_handle_from_sender(sender)
         text = text.removeprefix("\"").removesuffix("\"")
         print(f"{name}: {text}")
+
+        global afk
+        if afk:
+            print(f"{HANDLE}: {AUTO_REPLY}")
+            send(sender, f"MSG {handle} {AUTO_REPLY}")
     else:
         if not known_users.get(handle):
             print("[Error] This user is unknown")
@@ -183,17 +201,18 @@ def send_leave():
 
 
 if __name__ == "__main__":
+    listen_port = int(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.bind(("", LISTEN_PORT))
+    sock.bind(("", listen_port))
 
-    print(f"[NetworkCommunication] Listening on UDP port {LISTEN_PORT} for messages...")
+    print(f"[NetworkCommunication] Listening on UDP port {listen_port} for messages...")
 
     # Execute message listening on another thread to avoid freezing the program
     listening_thread = threading.Thread(target=listen_for_messages, daemon=True)
     listening_thread.start()
 
-    send(("<broadcast>", BROADCAST_PORT), command_join(HANDLE, LISTEN_PORT))
+    send(("<broadcast>", BROADCAST_PORT), command_join(HANDLE, listen_port))
     send(("<broadcast>", BROADCAST_PORT), command_who())
 
     try:

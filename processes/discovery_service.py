@@ -2,11 +2,11 @@ import os
 import socket
 import threading
 import time
+import toml
 
 
-HANDLE = "Client"
-BROADCAST_PORT = 4000
-LISTEN_PORT = 33333
+CONFIG = toml.load("config.toml")
+BROADCAST_PORT = CONFIG["general"]["whoisport"]
 BUFFER_SIZE = 1024
 known_users: dict[str, list[str]] = {}
 
