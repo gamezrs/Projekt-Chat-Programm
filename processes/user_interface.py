@@ -11,14 +11,15 @@ BUFFER_SIZE = 1024
 
 
 def send(message: str):
+    """
+    Sends commands to the network_communication process
+    """
     global listen_port
 
     split_message = message.split(" ", 1)
     command = split_message.pop(0)
     if len(split_message) > 0:
         parameters = split_message.pop(0)
-    
-    command_to_send = ""
 
     match command:
         case "msg":
@@ -36,6 +37,8 @@ def send(message: str):
             print("Config updated!")
         case "afk":
             sock.sendto(f"AFK".encode(), ("127.0.0.1", listen_port))
+        case _:
+            print("[Error] Command not found")
 
 
 def send_commands():

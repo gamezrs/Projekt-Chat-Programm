@@ -34,6 +34,9 @@ def send(receiver, command: str | bytes):
 def listen_for_messages():
     """
     Permanently listening for messages
+
+    If the next_message_is_image variable is False, it will interpret messages as normal commands
+    If the variable is True, it interprets the message as binary data of an image
     """
     while True:
         global next_message_is_image
@@ -49,6 +52,9 @@ def listen_for_messages():
 
 
 def interpret_message(sender: tuple, message: str):
+    """
+    Interprets the messages as commands and calls their respective functions
+    """
     split_message = message.split(" ", 1)
     command = split_message.pop(0)
     if len(split_message) > 0:
@@ -99,6 +105,13 @@ def on_leave(sender: tuple, handle: str):
 
 
 def on_msg(sender: tuple, handle: str, text: str):
+    """
+    When a message is received that is addressed to the handle of this client, it is simply print
+    and in case the user has set the AFK flag, an autoreply is sent back.
+
+    If a message reaches this client that is not addressed to it, the message came from the user interface
+    and the client sends a message to the addressed client.
+    """
     if handle == HANDLE:
         name = get_handle_from_sender(sender)
         text = text.removeprefix("\"").removesuffix("\"")
@@ -118,6 +131,9 @@ def on_msg(sender: tuple, handle: str, text: str):
 
 
 def on_img(sender: tuple, handle: str, size: int):
+    """
+    Sets the flags so that the client knows, the next message is an image
+    """
     global next_message_is_image
     next_message_is_image = True
 
@@ -126,6 +142,9 @@ def on_img(sender: tuple, handle: str, size: int):
 
 
 def on_imgrequest(sender: tuple, handle: str, file_path: str):
+    """
+    Sends an image to another client when the user interface requests it
+    """
     if not known_users.get(handle):
         print("[Error] This user is unknown")
         return
@@ -144,6 +163,9 @@ def on_imgrequest(sender: tuple, handle: str, file_path: str):
 
 
 def on_img_binary(sender: tuple, content: bytes):
+    """
+    Receives the image content in binary, saves it to disk and opens it
+    """
     global next_message_is_image
     next_message_is_image = False
 
@@ -156,6 +178,8 @@ def on_img_binary(sender: tuple, content: bytes):
         file.write(content)
     
     os.startfile(file_name)
+
+    print(f"You received an image from {get_handle_from_sender(sender)}")
 
 
 def on_knowusers(sender: tuple, users: list[str]):

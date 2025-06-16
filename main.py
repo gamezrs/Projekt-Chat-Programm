@@ -18,6 +18,9 @@ def start_discovery():
 
 
 def check_for_free_port(port_range: str, host: str = "127.0.0.1"):
+    """
+    Maps the port range into a iterable object and returns the smallest available port
+    """
     start, end = map(int, port_range.split('-'))
     for port in range(start, end):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
