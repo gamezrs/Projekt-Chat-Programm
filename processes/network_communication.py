@@ -120,7 +120,7 @@ def on_msg(sender: tuple, handle: str, text: str):
         global afk
         if afk:
             print(f"{HANDLE}: {AUTO_REPLY}")
-            send(sender, f"MSG {handle} {AUTO_REPLY}")
+            send(sender, f"MSG {name} {AUTO_REPLY}")
     else:
         if not known_users.get(handle):
             print("[Error] This user is unknown")
