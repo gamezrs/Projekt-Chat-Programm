@@ -64,7 +64,7 @@ def interpret_message(sender: tuple, message: str):
         case "LEAVE":
             parameters = parameters.split(" ", 1)
             if not len(parameters) > 0: return
-            handle = parameters
+            (handle,) = parameters
             on_leave(sender, handle)
         case "MSG":
             parameters = parameters.split(" ", 1)
@@ -102,6 +102,9 @@ def on_leave(sender: tuple, handle: str):
     if not known_users.get(handle):
         return
     known_users.pop(handle)
+    
+    print(f"{handle} has left the chat")
+    print(f"Online users: {" ".join(known_users.keys())}")
 
 
 def on_msg(sender: tuple, handle: str, text: str):
@@ -183,9 +186,14 @@ def on_img_binary(sender: tuple, content: bytes):
 
 
 def on_knowusers(sender: tuple, users: list[str]):
+    online_users = ""
     for user in users:
-        handle, ip, port = user.split(" ")
+        handle, ip, port = user.removeprefix(" ").split(" ")
         known_users.update({handle: [ip, int(port)]})
+        online_users += f" {handle}"
+    
+    print(f"New user joined the chat")
+    print(f"Online users:{online_users}")
 
 
 def command_join(handle: str, port: int) -> str:

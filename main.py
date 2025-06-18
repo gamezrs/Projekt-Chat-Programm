@@ -13,8 +13,8 @@ def start_network(listen_port: int):
     os.system(f"python processes/network_communication.py {listen_port}")
 
 
-def start_discovery():
-    os.system("python processes/discovery_service.py")
+def start_discovery(listen_port: int):
+    os.system(f"python processes/discovery_service.py {listen_port}")
 
 
 def check_for_free_port(port_range: str, host: str = "127.0.0.1"):
@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     ui_process = Process(target=start_ui, args=[free_listen_port])
     network_process = Process(target=start_network, args=[free_listen_port])
-    discovery_process = Process(target=start_discovery)
+    discovery_process = Process(target=start_discovery, args=[free_listen_port])
 
     if not os.path.exists("./discovery.lock"):
         with open("./discovery.lock", "w") as file:

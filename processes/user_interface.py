@@ -58,4 +58,7 @@ if __name__ == "__main__":
     listen_port = int(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    print("Simple Local Chat Protocol")
+    print("Commands: msg [recipient] [message] | img [recipient] [path to image] | config [key] [value] | afk")
+
     send_commands()

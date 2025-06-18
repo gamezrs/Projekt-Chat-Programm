@@ -1,11 +1,13 @@
 import os
 import socket
+import sys
 import threading
 import time
 import toml
 
 
 CONFIG = toml.load("config.toml")
+HANDLE = CONFIG["general"]["handle"]
 BROADCAST_PORT = CONFIG["general"]["whoisport"]
 BUFFER_SIZE = 1024
 known_users: dict[str, list[str]] = {}
@@ -41,7 +43,7 @@ def interpret_discovery_message(sender: tuple, message: str):
             handle, port = parameters.split(" ")
             on_join(sender, handle, port)
         case "LEAVE":
-            handle = parameters.split(" ")
+            (handle,) = parameters.split(" ")
             on_leave(sender, handle)
         case "WHO":
             on_who(sender)
@@ -51,6 +53,9 @@ def interpret_discovery_message(sender: tuple, message: str):
 
 def on_join(sender: tuple, handle: str, port: int):
     known_users.update({handle: [sender[0], port]})
+    
+    if handle != HANDLE:
+        send(("127.0.0.1", listen_port), command_knowusers(known_users))
 
 
 def on_leave(sender: tuple, handle: str):
@@ -74,6 +79,7 @@ def command_knowusers(users: dict[str, list[str]]) -> str:
 
 
 if __name__ == "__main__":
+    listen_port = int(sys.argv[1])
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.bind(("", BROADCAST_PORT))
