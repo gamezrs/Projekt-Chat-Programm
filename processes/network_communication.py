@@ -99,6 +99,9 @@ def interpret_message(sender: tuple, message: str):
 
 
 def on_leave(sender: tuple, handle: str):
+    """
+    Removes the user that left from the known users dictionary and prints a message with currently online users
+    """
     if not known_users.get(handle):
         return
     known_users.pop(handle)
@@ -186,6 +189,9 @@ def on_img_binary(sender: tuple, content: bytes):
 
 
 def on_knowusers(sender: tuple, users: list[str]):
+    """
+    Updates the known users dictionary and prints a message with currently online users
+    """
     online_users = ""
     for user in users:
         handle, ip, port = user.removeprefix(" ").split(" ")
@@ -217,6 +223,10 @@ def command_who() -> str:
 
 
 def get_handle_from_sender(sender: tuple) -> str:
+    """
+    Returns the handle of the sender if it is found in the known users dictionary
+    and matches the saved users ip and port
+    """
     for handle, address in known_users.items():
         sender_ip, sender_port = sender
         user_ip, user_port = address
@@ -226,6 +236,9 @@ def get_handle_from_sender(sender: tuple) -> str:
 
 
 def send_leave():
+    """
+    Sends a LEAVE broadcast to all discovery servers and a unicast to all known users
+    """
     send(("<broadcast>", BROADCAST_PORT), command_leave(HANDLE))
     for handle, address in known_users.items():
         ip, port = address
