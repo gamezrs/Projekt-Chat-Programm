@@ -17,18 +17,29 @@ def start_discovery(listen_port: int):
     os.system(f"python processes/discovery_service.py {listen_port}")
 
 
-def check_for_free_port(port_range: str, host: str = "127.0.0.1"):
+def check_for_free_port(port_range: str, host: str = "127.0.0.1") -> int:
     """
-    Maps the port range into a iterable object and returns the smallest available port
+    Checks for a free port where both a TCP and UDP socket can bind on the same host.
+    Returns the first available port that works for both protocols.
     """
     start, end = map(int, port_range.split('-'))
     for port in range(start, end):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind((host, port))
-                return port
-            except OSError:
-                continue
+        try:
+            udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            udp_sock.bind((host, port))
+
+            tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcp_sock.bind((host, port))
+
+            udp_sock.close()
+            tcp_sock.close()
+            return port
+
+        except OSError:
+            udp_sock.close()
+            if 'tcp_sock' in locals():
+                tcp_sock.close()
+            continue
 
 
 if __name__ == "__main__":
