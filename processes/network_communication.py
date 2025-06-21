@@ -14,8 +14,7 @@ IMAGE_PATH = CONFIG["general"]["imagepath"]
 BUFFER_SIZE = 1024
 afk = False
 known_users: dict[str, list[str]] = {}
-next_message_is_image = False
-image_buffer_size = 0
+image_buffer_size = BUFFER_SIZE
 
 
 def on_receive(sender: tuple, command: str):
@@ -23,32 +22,51 @@ def on_receive(sender: tuple, command: str):
     interpret_message(sender, command)
 
 
-def send(receiver, command: str | bytes):
+def send(receiver, command: str | bytes, protocol: str = "UDP"):
     if isinstance(command, str):
         command = command.encode()
+    
+    if protocol == "UDP":
+        sock.sendto(command, receiver)
+    elif protocol == "TCP":
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as tcpsock:
+            tcpsock.connect(receiver)
+            tcpsock.sendall(command)
 
-    sock.sendto(command, receiver)
     print(f"[NetworkCommunication] Sent to {receiver}: {command}")
 
 
 def listen_for_messages():
     """
-    Permanently listening for messages
-
-    If the next_message_is_image variable is False, it will interpret messages as normal commands
-    If the variable is True, it interprets the message as binary data of an image
+    Permanently listening for UDP messages and interprets messages as commands
     """
     while True:
-        global next_message_is_image
+        data, sender = sock.recvfrom(BUFFER_SIZE)
+        message = data.decode()
+        on_receive(sender, message)
 
-        if not next_message_is_image:
-            data, sender = sock.recvfrom(BUFFER_SIZE)
-            message = data.decode()
-            on_receive(sender, message)
-        else:
-            global image_buffer_size
-            data, sender = sock.recvfrom(image_buffer_size)
-            on_img_binary(sender, data)
+
+def listen_for_tcp_messages():
+    """
+    Permanently listening for TCP messages and interprets messages as commands
+    """
+    tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcp_server.bind(("", listen_port))
+    tcp_server.listen()
+
+    print(f"[NetworkCommunication] Listening on TCP port {listen_port} for messages...")
+
+    while True:
+        conn, addr = tcp_server.accept()
+        with conn:
+            data = conn.recv(image_buffer_size)
+            if not data:
+                continue
+            try:
+                message = data.decode()
+                on_receive(addr, message)
+            except UnicodeDecodeError:
+                on_img_binary(addr, data)
 
 
 def interpret_message(sender: tuple, message: str):
@@ -126,23 +144,20 @@ def on_msg(sender: tuple, handle: str, text: str):
         global afk
         if afk:
             print(f"{HANDLE}: {AUTO_REPLY}")
-            send(sender, f"MSG {name} {AUTO_REPLY}")
+            send(sender, f"MSG {name} {AUTO_REPLY}", "TCP")
     else:
         if not known_users.get(handle):
             print("[Error] This user is unknown")
             return
         
         ip, port = known_users.get(handle)
-        send((ip, port), command_msg(handle, text))
+        send((ip, port), command_msg(handle, text), "TCP")
 
 
 def on_img(sender: tuple, handle: str, size: int):
     """
     Sets the flags so that the client knows, the next message is an image
     """
-    global next_message_is_image
-    next_message_is_image = True
-
     global image_buffer_size
     image_buffer_size = size
 
@@ -164,19 +179,16 @@ def on_imgrequest(sender: tuple, handle: str, file_path: str):
         size = len(content)
         
     ip, port = known_users.get(handle)
-    send((ip, port), command_img(handle, size))
-    send((ip, port), content)
+    send((ip, port), command_img(handle, size), "TCP")
+    send((ip, port), content, "TCP")
 
 
 def on_img_binary(sender: tuple, content: bytes):
     """
     Receives the image content in binary, saves it to disk and opens it
     """
-    global next_message_is_image
-    next_message_is_image = False
-
     global image_buffer_size
-    image_buffer_size = 0
+    image_buffer_size = BUFFER_SIZE
 
     file_name = f"{IMAGE_PATH}/{time.time_ns()}.png"
 
@@ -247,6 +259,7 @@ def send_leave():
 
 if __name__ == "__main__":
     listen_port = int(sys.argv[1])
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     sock.bind(("", listen_port))
@@ -256,6 +269,9 @@ if __name__ == "__main__":
     # Execute message listening on another thread to avoid freezing the program
     listening_thread = threading.Thread(target=listen_for_messages, daemon=True)
     listening_thread.start()
+
+    tcp_listening_thread = threading.Thread(target=listen_for_tcp_messages, daemon=True)
+    tcp_listening_thread.start()
 
     send(("<broadcast>", BROADCAST_PORT), command_join(HANDLE, listen_port))
     send(("<broadcast>", BROADCAST_PORT), command_who())
