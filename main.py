@@ -1,67 +1,57 @@
-import os
-import socket
-import time
+#!/usr/bin/env python3
+# Imports aller benötigten Module
+import sys
 import toml
-from multiprocessing import Process
+from multiprocessing import Manager, Queue, Process, set_start_method
 
+from .processes.discovery_service import peer_discovery  # Discovery via UDP-Broadcast
+from .processes.network_communication import stream_handler  # TCP-basiertes Messaging
+from .processes.user_interface import run_cli  # Kommandozeilen-Interface
 
-def start_ui(listen_port: int):
-    os.system(f"python processes/user_interface.py {listen_port}")
-
-
-def start_network(listen_port: int):
-    os.system(f"python processes/network_communication.py {listen_port}")
-
-
-def start_discovery(listen_port: int):
-    os.system(f"python processes/discovery_service.py {listen_port}")
-
-
-def check_for_free_port(port_range: str, host: str = "127.0.0.1") -> int:
+# Main-Funktion, wird beim Skriptstart ausgeführt
+def main():
     """
-    Checks for a free port where both a TCP and UDP socket can bind on the same host.
-    Returns the first available port that works for both protocols.
+    @brief   Initialisiert IPC und startet Hintergrundprozesse.
+    @details
+      - Setzt unter Windows den "spawn"-Modus für Multiprocessing.
+      - Bestimmt den Pfad zur Konfigurationsdatei (argv[1] oder Default).
+      - Erstellt Manager und drei Queues für Logs, Discovery- und Datenverkehr.
+      - Startet die Prozesse peer_discovery und stream_handler.
+      - Startet das CLI-Frontend und beendet Prozesse bei Unterbrechung.
+    @return  None
     """
-    start, end = map(int, port_range.split('-'))
-    for port in range(start, end):
-        try:
-            udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            udp_sock.bind((host, port))
+    #  Windows-spezifische Startmethode, um Fork-Issues zu vermeiden
+    set_start_method('spawn', force=True)
 
-            tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            tcp_sock.bind((host, port))
+    #  Config-Pfad aus Argument oder Standardwert
+    cfg_path = sys.argv[1] if len(sys.argv) > 1 else 'config.toml'
 
-            udp_sock.close()
-            tcp_sock.close()
-            return port
+    #  Manager für geteilte Peer-Daten (Name → (IP, Port))
+    manager = Manager()
+    peers = manager.dict()
 
-        except OSError:
-            udp_sock.close()
-            if 'tcp_sock' in locals():
-                tcp_sock.close()
-            continue
+    #  Queues für Interprozesskommunikation
+    log_queue  = Queue()  # Log- und Statusmeldungen für CLI
+    cmd_queue  = Queue()  # Discovery-Befehle (JOIN, WHO, LEAVE)
+    data_queue = Queue()  # Chat- und Bildnachrichten (MSG, IMG)
 
+    #  Prozesse starten
+    disc_proc = Process(target=peer_discovery, args=(log_queue, cmd_queue, cfg_path, peers))
+    net_proc  = Process(target=stream_handler,  args=(log_queue, data_queue, cfg_path, peers))
+    disc_proc.start()
+    net_proc.start()
 
-if __name__ == "__main__":
-    CONFIG = toml.load("config.toml")
-    LISTEN_PORT_RANGE = CONFIG["general"]["port"]
+    #  CLI starten und bei Abbruch Prozesse beenden
+    try:
+        run_cli(log_queue, cmd_queue, data_queue, cfg_path)
+    except KeyboardInterrupt:
+        print('\n[INFO] Abbruch durch Nutzer, stoppe Dienste...')
+    finally:
+        disc_proc.terminate()  # Discovery-Service stoppen
+        net_proc.terminate()   # Netzwerk-Handler stoppen
+        disc_proc.join()       # Auf sauberes Beenden warten
+        net_proc.join()
+        print('[INFO] Alle Prozesse wurden beendet.')
 
-    free_listen_port = check_for_free_port(LISTEN_PORT_RANGE)
-
-    ui_process = Process(target=start_ui, args=[free_listen_port])
-    network_process = Process(target=start_network, args=[free_listen_port])
-    discovery_process = Process(target=start_discovery, args=[free_listen_port])
-
-    if not os.path.exists("./discovery.lock"):
-        with open("./discovery.lock", "w") as file:
-            file.write("running")
-        discovery_process.start()
-        time.sleep(1)
-    network_process.start()
-    time.sleep(1)
-    ui_process.start()
-
-    if discovery_process.is_alive():
-        discovery_process.join()
-    network_process.join()
-    ui_process.join()
+if __name__ == '__main__':
+    main()

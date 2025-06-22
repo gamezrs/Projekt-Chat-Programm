@@ -1,98 +1,81 @@
-import os
+# Module für Socket-Kommunikation und Konfigurationshandling
 import socket
-import sys
-import threading
-import time
 import toml
+import time
 
-
-CONFIG = toml.load("config.toml")
-HANDLE = CONFIG["general"]["handle"]
-BROADCAST_PORT = CONFIG["general"]["whoisport"]
-BUFFER_SIZE = 1024
-known_users: dict[str, list[str]] = {}
-
-
-def on_receive(sender: tuple, message: str):
-    interpret_discovery_message(sender, message)
-
-
-def send(receiver, command: str):
-    sock.sendto(command.encode(), receiver)
-    print(f"[DiscoveryService] Sent to {receiver}: {command}")
-
-
-def listen_for_messages():
+# Discovery-Service: Endlosschleife für UDP-Broadcasts
+def peer_discovery(log_queue, cmd_queue, cfg_path, peers):
     """
-    Permanently listening for messages
+    @brief   Lauscht auf UDP-Port, verwaltet Peer-Liste und sendet
+             Discovery-Nachrichten (JOIN, WHO, LEAVE).
+    @return  None
     """
-    while True:
-        data, sender = sock.recvfrom(BUFFER_SIZE)
-        message = data.decode()
-        on_receive(sender, message)
+    # Konfiguration der Kommunikationsports laden
+    cfg       = toml.load(cfg_path)
+    me        = cfg['user']
+    udp_port  = cfg['udp_port']
+    tcp_port  = cfg['tcp_port']
 
+    # Eigene IP-Adresse ermitteln & ins Mapping aufnehmen
+    hostname = socket.gethostname()
+    my_ip    = socket.gethostbyname(hostname)
+    peers[me] = (my_ip, tcp_port)
+    log_queue.put(f"[DISC] Ich={me}@{my_ip}:{tcp_port}")
 
-def interpret_discovery_message(sender: tuple, message: str):
-    split_message = message.split(" ", 1)
-    command = split_message.pop(0)
-    if len(split_message) > 0:
-        parameters = split_message.pop(0)
-
-    match command:
-        case "JOIN":
-            handle, port = parameters.split(" ")
-            on_join(sender, handle, port)
-        case "LEAVE":
-            (handle,) = parameters.split(" ")
-            on_leave(sender, handle)
-        case "WHO":
-            on_who(sender)
-        case _:
-            print(f"[Error] Command {command} does not exist")
-
-
-def on_join(sender: tuple, handle: str, port: int):
-    known_users.update({handle: [sender[0], port]})
-    
-    if handle != HANDLE:
-        send(("127.0.0.1", listen_port), command_knowusers(known_users))
-
-
-def on_leave(sender: tuple, handle: str):
-    if not known_users.get(handle):
-        return
-    known_users.pop(handle)
-
-
-def on_who(sender: tuple):
-    send(sender, command_knowusers(known_users))
-
-
-def command_knowusers(users: dict[str, list[str]]) -> str:
-    command = "KNOWUSERS"
-
-    for handle, address in users.items():
-        ip, port = address
-        command += f" {handle} {ip} {port},"
-    
-    return command
-
-
-if __name__ == "__main__":
-    listen_port = int(sys.argv[1])
+    # UDP-Socket konfigurieren (Broadcast & ReuseAddr)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    sock.bind(("", BROADCAST_PORT))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('', udp_port))  # an alle Interfaces binden
+    sock.setblocking(False)
 
-    print(f"[DiscoveryService] Listening on UDP port {BROADCAST_PORT} for discoveries...")
+    known = {me: peers[me]}  # lokale Kopie der Peer-Liste
 
-    # Execute message listening on another thread to avoid freezing the program
-    listening_thread = threading.Thread(target=listen_for_messages, daemon=True)
-    listening_thread.start()
+    while True:
+        # 1) Eingehende Discovery-Nachrichten verarbeiten
+        try:
+            data, sender = sock.recvfrom(2048)
+            text = data.decode().strip()
+            log_queue.put(f"[DISC] {text} von {sender}")
+            parts = text.split()
+            cmd = parts[0]
 
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        os.remove("./discovery.lock")
-        print("[DiscoveryService] Service stopped")
+            if cmd == 'JOIN' and len(parts) == 3:
+                name, port = parts[1], int(parts[2])
+                if name != me:
+                    known[name] = (sender[0], port)
+                    peers[name]  = known[name]
+                    log_queue.put(f"[DISC] {name} beigetreten: {sender[0]}:{port}")
+
+            elif cmd == 'WHO':
+                # Liste bekannter Peers zurücksenden
+                payload = ','.join(f"{n}:{ip}:{p}" for n,(ip,p) in known.items())
+                sock.sendto(f"KNOWUSERS {payload}".encode(), sender)
+
+            elif cmd == 'LEAVE' and len(parts) == 2:
+                name = parts[1]
+                known.pop(name, None)
+                peers.pop(name, None)
+                log_queue.put(f"[DISC] {name} hat das Netz verlassen")
+
+            elif cmd == 'KNOWUSERS':
+                # Peer-Liste anhand des Broadcasts aktualisieren
+                for entry in text[len('KNOWUSERS '):].split(','):
+                    n, h, p = entry.split(':')
+                    peers[n] = (h, int(p))
+                log_queue.put('[DISC] Peer-Liste aktualisiert via KNOWUSERS')
+
+        except BlockingIOError:
+            # kein Paket eingetroffen
+            pass
+
+        # 2) Ausgehende Discovery-Befehle senden
+        if not cmd_queue.empty():
+            out = cmd_queue.get()
+            sock.sendto(out.encode(), ('<broadcast>', udp_port))
+            if out.startswith('LEAVE'):
+                # zusätzlich direkt an bekannte Peers
+                for n,(ip,_) in known.items():
+                    if n != me:
+                        sock.sendto(out.encode(), (ip, udp_port))
+        time.sleep(0.1)
