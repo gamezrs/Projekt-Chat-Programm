@@ -1,0 +1,168 @@
+\doxysection{discovery\+\_\+service.\+py}
+\hypertarget{discovery__service_8py_source}{}\label{discovery__service_8py_source}\mbox{\hyperlink{discovery__service_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00001}\mbox{\hyperlink{namespacediscovery__service}{00001}}\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00002}00002\ \textcolor{stringliteral}{@file\ discovery\_service.py}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00003}00003\ \textcolor{stringliteral}{@brief\ Verwaltet\ Peer-\/Entdeckung\ und\ -\/Listen\ über\ UDP}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00006}00006\ \textcolor{keyword}{import}\ socket}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00007}00007\ \textcolor{keyword}{import}\ time}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00008}00008\ \textcolor{keyword}{import}\ threading}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00009}00009\ \textcolor{keyword}{import}\ json}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00010}00010\ \textcolor{keyword}{from}\ multiprocessing\ \textcolor{keyword}{import}\ Manager}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00012}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service}{00012}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service}{DiscoveryService}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00013}00013\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00014}00014\ \textcolor{stringliteral}{\ \ \ \ @class\ DiscoveryService}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00015}00015\ \textcolor{stringliteral}{\ \ \ \ @brief\ Implementiert\ den\ SLCP-\/Discovery-\/Mechanismus}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ @details}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ -\/\ Verarbeitet\ JOIN,\ LEAVE,\ WHO\ und\ KNOWUSERS\ Befehle}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ -\/\ Verwaltet\ eine\ Liste\ bekannter\ Peers\ mit\ Zeitstempeln}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ -\/\ Sendet\ regelmäßig\ Broadcasts\ zur\ eigenen\ Präsenz}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ -\/\ Bereinigt\ inaktive\ Peers\ automatisch}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00022}00022\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00023}00023\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00024}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a34fc0e92c1f3bea10e55b67874e5bb8e}{00024}}\ \ \ \ \ BROADCAST\_INTERVAL\ =\ 30\ \ \textcolor{comment}{\#\ Sekunden}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00025}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_afc43463e521d101eb754188e205f39df}{00025}}\ \ \ \ \ PEER\_TIMEOUT\ =\ 60\ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Sekunden}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00027}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a8586e189c7445d1667f747b3b9a46594}{00027}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a8586e189c7445d1667f747b3b9a46594}{\_\_init\_\_}}(self,\ udp\_port:\ int,\ peers:\ Manager().dict(),\ username:\ str,\ tcp\_port:\ int):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00029}00029\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Initialisiert\ den\ UDP-\/Socket\ und\ Peer-\/Daten}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00030}00030\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ udp\_port\ Port\ für\ UDP-\/Kommunikation}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00031}00031\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ peers\ Shared\ Dictionary\ der\ bekannten\ Peers}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00032}00032\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ username\ Eigener\ Benutzername}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00033}00033\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ tcp\_port\ Eigener\ TCP-\/Port\ für\ Nachrichten}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00035}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{00035}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{udp\_port}}\ =\ udp\_port}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00036}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{00036}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}\ =\ socket.socket(socket.AF\_INET,\ socket.SOCK\_DGRAM)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.setsockopt(socket.SOL\_SOCKET,\ socket.SO\_BROADCAST,\ 1)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.bind((\textcolor{stringliteral}{''},\ udp\_port))}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.settimeout(1.0)\ \ \textcolor{comment}{\#\ Timeout\ für\ recvfrom}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00040}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{00040}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}\ =\ peers}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00041}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{00041}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{username}}\ =\ username}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00042}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d}{00042}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d}{tcp\_port}}\ =\ tcp\_port}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00043}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{00043}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00045}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5f83522fa129a185b07f680b554fc9c7}{00045}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5f83522fa129a185b07f680b554fc9c7}{run}}(self):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00047}00047\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Hauptbetriebsschleife\ des\ Discovery-\/Dienstes}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00048}00048\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Kombiniert\ passives\ Lauschen\ und\ aktive\ Peer-\/Aktualisierung}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00049}00049\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ listen\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9}{\_listen\_udp}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ broadcast\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099}{\_broadcast\_presence}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ cleanup\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81}{\_cleanup\_peers}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ listen\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ broadcast\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ cleanup\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ listen\_thread.start()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ broadcast\_thread.start()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ cleanup\_thread.start()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(0.1)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00064}00064\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00065}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9}{00065}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9}{\_listen\_udp}}(self):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00067}00067\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Lauscht\ kontinuierlich\ auf\ UDP-\/Broadcasts}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00068}00068\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Verarbeitet\ eingehende\ SLCP-\/Befehle}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00069}00069\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ data,\ addr\ =\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.recvfrom(1024)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ command\ =\ data.decode().strip()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7}{\_handle\_slcp\_command}}(command,\ addr[0])}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ socket.timeout:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ socket.error:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00081}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7}{00081}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7}{\_handle\_slcp\_command}}(self,\ command:\ str,\ source\_ip:\ str):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00083}00083\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Verarbeitet\ SLCP-\/Discovery-\/Befehle}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00084}00084\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ command\ SLCP-\/kodierter\ Befehl}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00085}00085\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ source\_ip\ Ursprungs-\/IP\ des\ Befehls}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00086}00086\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00087}00087\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Unterstützte\ Befehle:}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00088}00088\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ JOIN:<username>:<tcp\_port>}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00089}00089\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ LEAVE:<username>}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00090}00090\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ WHO}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00091}00091\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ KNOWUSERS:<json\_peer\_list>}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00092}00092\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ command.startswith(\textcolor{stringliteral}{"{}JOIN:"{}}):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ parts\ =\ command.split(\textcolor{stringliteral}{':'})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(parts)\ >=\ 3:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ user\ =\ parts[1]}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tcp\_port\ =\ int(parts[2])}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Aktualisiere\ Peer-\/Liste}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}[user]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'ip'}:\ source\_ip,}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'port'}:\ tcp\_port,}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'last\_seen'}:\ time.time()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Neuer\ Peer:\ \{user\}@\{source\_ip\}:\{tcp\_port\}"{}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ ValueError:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{pass}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ command\ ==\ \textcolor{stringliteral}{"{}WHO"{}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Sende\ Liste\ der\ bekannten\ Peers}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ known\_users\ =\ \{user:\ data\ \textcolor{keywordflow}{for}\ user,\ data\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}.items()\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ user\ !=\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{username}}\}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ response\ =\ f\textcolor{stringliteral}{"{}KNOWUSERS:\{json.dumps(known\_users)\}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.sendto(response.encode(),\ (source\_ip,\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{udp\_port}}))}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ command.startswith(\textcolor{stringliteral}{"{}KNOWUSERS:"{}}):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ json\_str\ =\ command.split(\textcolor{stringliteral}{':'},\ 1)[1]}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ peer\_data\ =\ json.loads(json\_str)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ current\_time\ =\ time.time()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ user,\ data\ \textcolor{keywordflow}{in}\ peer\_data.items():}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Aktualisiere\ nur,\ wenn\ der\ Peer\ nicht\ wir\ selbst\ sind}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ user\ !=\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{username}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}[user]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'ip'}:\ data[\textcolor{stringliteral}{'ip'}],}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'port'}:\ data[\textcolor{stringliteral}{'port'}],}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'last\_seen'}:\ current\_time}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ (IndexError,\ json.JSONDecodeError):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{pass}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ command.startswith(\textcolor{stringliteral}{"{}LEAVE:"{}}):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ user\ =\ command.split(\textcolor{stringliteral}{':'})[1]}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ user\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ del\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}[user]}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Peer\ verlassen:\ \{user\}"{}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00139}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099}{00139}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099}{\_broadcast\_presence}}(self):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00141}00141\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Sendet\ regelmäßig\ JOIN-\/Broadcasts}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00142}00142\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Informiert\ andere\ Peers\ über\ eigene\ Präsenz}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00143}00143\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ message\ =\ f\textcolor{stringliteral}{"{}JOIN:\{self.username\}:\{self.tcp\_port\}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\_socket}}.sendto(message.encode(),\ (\textcolor{stringliteral}{'<broadcast>'},\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{udp\_port}}))}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a34fc0e92c1f3bea10e55b67874e5bb8e}{BROADCAST\_INTERVAL}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00149}\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81}{00149}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81}{\_cleanup\_peers}}(self):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00151}00151\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Entfernt\ inaktive\ Peers\ aus\ der\ Liste}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00152}00152\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Prüft\ regelmäßig\ die\ letzte\ Aktivität}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00153}00153\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ current\_time\ =\ time.time()}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ to\_remove\ =\ []}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ user,\ data\ \textcolor{keywordflow}{in}\ list(self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}.items()):}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_time\ -\/\ data[\textcolor{stringliteral}{'last\_seen'}]\ >\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_afc43463e521d101eb754188e205f39df}{PEER\_TIMEOUT}}:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ to\_remove.append(user)}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ user\ \textcolor{keywordflow}{in}\ to\_remove:}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ del\ self.\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}[user]}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Peer\ timeout:\ \{user\}"{}})}
+\DoxyCodeLine{\Hypertarget{discovery__service_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(10)}
+
+\end{DoxyCode}

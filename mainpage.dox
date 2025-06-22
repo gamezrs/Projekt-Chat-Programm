@@ -1,0 +1,64 @@
+/*! \mainpage Chat-Programm - Technische Dokumentation
+
+\section intro_sec Einführung
+SimpleChat ist ein Peer-to-Peer-Chat-Programm zur lokalen Kommunikation in IP-Netzwerken. 
+Es basiert auf dem **Simple Local Chat Protocol (SLCP)** und ermöglicht die Übertragung von:
+- Textnachrichten
+- Bildern
+- Systemnachrichten
+
+\image html architecture_overview.png "Systemarchitektur" width=600px
+
+\section features_sec Hauptfunktionen
+- \b Automatische Peer-Entdeckung via UDP-Broadcast
+- \b Zuverlässiger Bildtransfer mit Handshake-Mechanismus
+- \b CLI-Oberfläche für einfache Bedienung
+- \b Modulare Architektur (siehe \ref architecture_sec)
+
+\section architecture_sec Systemarchitektur
+\subsection components Unterkomponenten
+| Modul                  | Beschreibung                          |
+|------------------------|---------------------------------------|
+| user_interface.py      | CLI für Nutzerinteraktion             |
+| discovery_service.py   | Verwaltet Peer-Liste via UDP          |
+| network_communication.py| TCP-basierte Nachrichtenübertragung  |
+
+\subsection dataflow Datenfluss
+\dot
+digraph G {
+    rankdir=LR;
+    CLI -> Discovery [label="JOIN/LEAVE"];
+    CLI -> Network [label="MSG/IMG"];
+    Discovery -> Network [label="Peer-Liste"];
+    Network -> CLI [label="Nachrichten"];
+}
+\enddot
+
+\section usage_sec Schnellstart
+1. Konfiguration anpassen:
+\code{.toml}
+[user]
+name = "Ihr_Name"
+udp_port = 4000
+tcp_port = 5000
+\endcode
+
+2. Programm starten:
+\code{.sh}
+python main.py config.toml
+\endcode
+
+3. Verfügbare Befehle:
+\code
+join    - Netzwerk beitreten
+msg     - Nachricht senden
+img     - Bild senden
+who     - Peers anzeigen
+\endcode
+
+\section links_sec Weiterführend
+- \ref src_files "Quellcode-Übersicht"
+- \ref protocol_sec "SLCP-Protokoll Details"
+- \ref troubleshooting "Fehlerbehebung"
+
+*/

@@ -1,0 +1,246 @@
+\doxysection{discovery\+\_\+service.\+Discovery\+Service Class Reference}
+\hypertarget{classdiscovery__service_1_1_discovery_service}{}\label{classdiscovery__service_1_1_discovery_service}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a8586e189c7445d1667f747b3b9a46594}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{udp\+\_\+port}}, Manager().dict() \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}}, str \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{username}}, int \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d}{tcp\+\_\+port}})
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5f83522fa129a185b07f680b554fc9c7}{run}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}{udp\+\_\+port}} = udp\+\_\+port
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}{udp\+\_\+socket}} = socket.\+socket(socket.\+AF\+\_\+\+INET, socket.\+SOCK\+\_\+\+DGRAM)
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}{peers}} = peers
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}{username}} = username
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d}{tcp\+\_\+port}} = tcp\+\_\+port
+\item 
+bool \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}{running}} = True
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a34fc0e92c1f3bea10e55b67874e5bb8e}{BROADCAST\+\_\+\+INTERVAL}} = 30
+\item 
+int \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_afc43463e521d101eb754188e205f39df}{PEER\+\_\+\+TIMEOUT}} = 60
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9}{\+\_\+listen\+\_\+udp}} (self)
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7}{\+\_\+handle\+\_\+slcp\+\_\+command}} (self, str command, str source\+\_\+ip)
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099}{\+\_\+broadcast\+\_\+presence}} (self)
+\item 
+\mbox{\hyperlink{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81}{\+\_\+cleanup\+\_\+peers}} (self)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}@class DiscoveryService
+@brief Implementiert den SLCP-Discovery-Mechanismus
+
+@details
+- Verarbeitet JOIN, LEAVE, WHO und KNOWUSERS Befehle
+- Verwaltet eine Liste bekannter Peers mit Zeitstempeln
+- Sendet regelmäßig Broadcasts zur eigenen Präsenz
+- Bereinigt inaktive Peers automatisch
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00012}{12}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+
+
+\label{doc-constructors}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a8586e189c7445d1667f747b3b9a46594}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a8586e189c7445d1667f747b3b9a46594} 
+discovery\+\_\+service.\+Discovery\+Service.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{udp\+\_\+port}{, }\item[{Manager().dict()}]{peers}{, }\item[{str}]{username}{, }\item[{int}]{tcp\+\_\+port}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Initialisiert den UDP-Socket und Peer-Daten
+@param udp_port Port für UDP-Kommunikation
+@param peers Shared Dictionary der bekannten Peers
+@param username Eigener Benutzername
+@param tcp_port Eigener TCP-Port für Nachrichten
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00027}{27}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!\_broadcast\_presence@{\_broadcast\_presence}}
+\index{\_broadcast\_presence@{\_broadcast\_presence}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{\_broadcast\_presence()}{\_broadcast\_presence()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a500175acbc651b78ae9dfe73aa147099} 
+discovery\+\_\+service.\+Discovery\+Service.\+\_\+broadcast\+\_\+presence (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Sendet regelmäßig JOIN-Broadcasts
+@details Informiert andere Peers über eigene Präsenz
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00139}{139}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!\_cleanup\_peers@{\_cleanup\_peers}}
+\index{\_cleanup\_peers@{\_cleanup\_peers}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{\_cleanup\_peers()}{\_cleanup\_peers()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a6595aa7d625b4a9f7e6470b54e395f81} 
+discovery\+\_\+service.\+Discovery\+Service.\+\_\+cleanup\+\_\+peers (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Entfernt inaktive Peers aus der Liste
+@details Prüft regelmäßig die letzte Aktivität
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00149}{149}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!\_handle\_slcp\_command@{\_handle\_slcp\_command}}
+\index{\_handle\_slcp\_command@{\_handle\_slcp\_command}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{\_handle\_slcp\_command()}{\_handle\_slcp\_command()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a9328bbb319a6196bf4c3693e9696d4f7} 
+discovery\+\_\+service.\+Discovery\+Service.\+\_\+handle\+\_\+slcp\+\_\+command (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{command}{, }\item[{str}]{source\+\_\+ip}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Verarbeitet SLCP-Discovery-Befehle
+@param command SLCP-kodierter Befehl
+@param source_ip Ursprungs-IP des Befehls
+
+@details Unterstützte Befehle:
+- JOIN:<username>:<tcp_port>
+- LEAVE:<username>
+- WHO
+- KNOWUSERS:<json_peer_list>
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00081}{81}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!\_listen\_udp@{\_listen\_udp}}
+\index{\_listen\_udp@{\_listen\_udp}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{\_listen\_udp()}{\_listen\_udp()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_ae266f36b854e3ff067e2b7916ad932b9} 
+discovery\+\_\+service.\+Discovery\+Service.\+\_\+listen\+\_\+udp (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Lauscht kontinuierlich auf UDP-Broadcasts
+@details Verarbeitet eingehende SLCP-Befehle
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00065}{65}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a5f83522fa129a185b07f680b554fc9c7}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!run@{run}}
+\index{run@{run}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a5f83522fa129a185b07f680b554fc9c7} 
+discovery\+\_\+service.\+Discovery\+Service.\+run (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Hauptbetriebsschleife des Discovery-Dienstes
+@details Kombiniert passives Lauschen und aktive Peer-Aktualisierung
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00045}{45}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a34fc0e92c1f3bea10e55b67874e5bb8e}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!BROADCAST\_INTERVAL@{BROADCAST\_INTERVAL}}
+\index{BROADCAST\_INTERVAL@{BROADCAST\_INTERVAL}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{BROADCAST\_INTERVAL}{BROADCAST\_INTERVAL}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a34fc0e92c1f3bea10e55b67874e5bb8e} 
+discovery\+\_\+service.\+Discovery\+Service.\+BROADCAST\+\_\+\+INTERVAL = 30\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00024}{24}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_afc43463e521d101eb754188e205f39df}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!PEER\_TIMEOUT@{PEER\_TIMEOUT}}
+\index{PEER\_TIMEOUT@{PEER\_TIMEOUT}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{PEER\_TIMEOUT}{PEER\_TIMEOUT}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_afc43463e521d101eb754188e205f39df} 
+int discovery\+\_\+service.\+Discovery\+Service.\+PEER\+\_\+\+TIMEOUT = 60\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00025}{25}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!peers@{peers}}
+\index{peers@{peers}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{peers}{peers}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a92323c2a6444f6a7276c136fca12e066} 
+discovery\+\_\+service.\+Discovery\+Service.\+peers = peers}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00040}{40}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!running@{running}}
+\index{running@{running}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{running}{running}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a5676221c91f4d8f6e128c7e5ff5b31ef} 
+bool discovery\+\_\+service.\+Discovery\+Service.\+running = True}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00043}{43}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!tcp\_port@{tcp\_port}}
+\index{tcp\_port@{tcp\_port}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{tcp\_port}{tcp\_port}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a9efb099608521dc70190b86d49b3096d} 
+discovery\+\_\+service.\+Discovery\+Service.\+tcp\+\_\+port = tcp\+\_\+port}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00042}{42}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!udp\_port@{udp\_port}}
+\index{udp\_port@{udp\_port}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{udp\_port}{udp\_port}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a13719130c983fd0ae361b2fb5b61d08b} 
+discovery\+\_\+service.\+Discovery\+Service.\+udp\+\_\+port = udp\+\_\+port}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00035}{35}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!udp\_socket@{udp\_socket}}
+\index{udp\_socket@{udp\_socket}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{udp\_socket}{udp\_socket}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_ae97dd90fa930727990f4a6384901ddf9} 
+discovery\+\_\+service.\+Discovery\+Service.\+udp\+\_\+socket = socket.\+socket(socket.\+AF\+\_\+\+INET, socket.\+SOCK\+\_\+\+DGRAM)}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00036}{36}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+\Hypertarget{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f}\index{discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}!username@{username}}
+\index{username@{username}!discovery\_service.DiscoveryService@{discovery\_service.DiscoveryService}}
+\doxysubsubsection{\texorpdfstring{username}{username}}
+{\footnotesize\ttfamily \label{classdiscovery__service_1_1_discovery_service_a08bd8870c4e09daf15aaf59d60544b1f} 
+discovery\+\_\+service.\+Discovery\+Service.\+username = username}
+
+
+
+Definition at line \mbox{\hyperlink{discovery__service_8py_source_l00041}{41}} of file \mbox{\hyperlink{discovery__service_8py_source}{discovery\+\_\+service.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{discovery__service_8py}{discovery\+\_\+service.\+py}}\end{DoxyCompactItemize}

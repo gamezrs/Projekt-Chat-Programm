@@ -1,0 +1,224 @@
+\doxysection{network\+\_\+communication.\+Network\+Communication Class Reference}
+\hypertarget{classnetwork__communication_1_1_network_communication}{}\label{classnetwork__communication_1_1_network_communication}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ae786e969cf0d6ef258cddac76ef31a4b}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, int \mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097}{tcp\+\_\+port}}, str \mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}{img\+\_\+dir}}, Manager().dict() \mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049}{peers}})
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad3d410e44068238c979b79bc8c62da3c}{start}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097}{tcp\+\_\+port}} = tcp\+\_\+port
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\+\_\+server}} = socket.\+socket(socket.\+AF\+\_\+\+INET, socket.\+SOCK\+\_\+\+STREAM)
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}{img\+\_\+dir}} = img\+\_\+dir
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049}{peers}} = peers
+\item 
+bool \mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{running}} = True
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classnetwork__communication_1_1_network_communication_acde749ee543c6f4078301892a7ab16f9}{CHUNK\+\_\+\+SIZE}} = 4096
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0}{\+\_\+accept\+\_\+connections}} (self)
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff}{\+\_\+handle\+\_\+client}} (self, socket.\+socket client\+\_\+socket)
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac}{\+\_\+process\+\_\+message}} (self, str header, socket.\+socket socket)
+\item 
+\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20}{\+\_\+process\+\_\+image}} (self, str header, socket.\+socket socket)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}@class NetworkCommunication
+@brief Verwaltet TCP-Kommunikation mit Peers
+
+@details
+- Startet einen TCP-Server für eingehende Verbindungen
+- Verarbeitet Textnachrichten und Bildübertragungen
+- Implementiert einen Handshake-Mechanismus für zuverlässigen Bildtransfer
+- Speichert empfangene Bilder im konfigurierten Verzeichnis
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00014}{14}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+
+
+\label{doc-constructors}
+\Hypertarget{classnetwork__communication_1_1_network_communication_doc-constructors}
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classnetwork__communication_1_1_network_communication_ae786e969cf0d6ef258cddac76ef31a4b}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_ae786e969cf0d6ef258cddac76ef31a4b} 
+network\+\_\+communication.\+Network\+Communication.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{int}]{tcp\+\_\+port}{, }\item[{str}]{img\+\_\+dir}{, }\item[{Manager().dict()}]{peers}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Initialisiert TCP-Server und Konfiguration
+@param tcp_port Port für TCP-Kommunikation
+@param img_dir Verzeichnis zum Speichern von Bildern
+@param peers Shared Dictionary der bekannten Peers
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00028}{28}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{classnetwork__communication_1_1_network_communication_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!\_accept\_connections@{\_accept\_connections}}
+\index{\_accept\_connections@{\_accept\_connections}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{\_accept\_connections()}{\_accept\_connections()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0} 
+network\+\_\+communication.\+Network\+Communication.\+\_\+accept\+\_\+connections (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Akzeptiert eingehende TCP-Verbindungen
+@details Startet für jede Verbindung einen Handler-Thread
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00061}{61}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!\_handle\_client@{\_handle\_client}}
+\index{\_handle\_client@{\_handle\_client}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{\_handle\_client()}{\_handle\_client()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff} 
+network\+\_\+communication.\+Network\+Communication.\+\_\+handle\+\_\+client (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{socket.\+socket}]{client\+\_\+socket}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Verarbeitet eingehende TCP-Datenströme
+@param client_socket Socket des verbundenen Clients
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00081}{81}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!\_process\_image@{\_process\_image}}
+\index{\_process\_image@{\_process\_image}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{\_process\_image()}{\_process\_image()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20} 
+network\+\_\+communication.\+Network\+Communication.\+\_\+process\+\_\+image (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{header}{, }\item[{socket.\+socket}]{socket}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Verarbeitet Bildübertragungen mit Handshake
+@param header Bildmetadaten (Größe, Dateiname)
+@param socket Verbindungssocket
+
+@details Ablauf:
+1. Header parsen: IMG:<Größe>:<Dateiname>
+2. ACK senden
+3. Daten empfangen und prüfen
+4. Bild speichern oder verwerfen
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00121}{121}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!\_process\_message@{\_process\_message}}
+\index{\_process\_message@{\_process\_message}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{\_process\_message()}{\_process\_message()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac} 
+network\+\_\+communication.\+Network\+Communication.\+\_\+process\+\_\+message (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{header}{, }\item[{socket.\+socket}]{socket}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}@brief Verarbeitet eingehende Textnachrichten
+@param header Nachrichtenheader
+@param socket Verbindungssocket
+
+@details Nachrichtenformat:
+MSG:<sender>:<receiver>:<timestamp>:<message>
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00099}{99}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_ad3d410e44068238c979b79bc8c62da3c}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!start@{start}}
+\index{start@{start}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{start()}{start()}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_ad3d410e44068238c979b79bc8c62da3c} 
+network\+\_\+communication.\+Network\+Communication.\+start (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}@brief Startet TCP-Server und Nachrichtenverarbeitung
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00048}{48}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{classnetwork__communication_1_1_network_communication_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classnetwork__communication_1_1_network_communication_acde749ee543c6f4078301892a7ab16f9}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!CHUNK\_SIZE@{CHUNK\_SIZE}}
+\index{CHUNK\_SIZE@{CHUNK\_SIZE}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{CHUNK\_SIZE}{CHUNK\_SIZE}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_acde749ee543c6f4078301892a7ab16f9} 
+int network\+\_\+communication.\+Network\+Communication.\+CHUNK\+\_\+\+SIZE = 4096\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00026}{26}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!img\_dir@{img\_dir}}
+\index{img\_dir@{img\_dir}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{img\_dir}{img\_dir}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4} 
+network\+\_\+communication.\+Network\+Communication.\+img\+\_\+dir = img\+\_\+dir}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00041}{41}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!peers@{peers}}
+\index{peers@{peers}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{peers}{peers}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049} 
+network\+\_\+communication.\+Network\+Communication.\+peers = peers}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00042}{42}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!running@{running}}
+\index{running@{running}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{running}{running}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4} 
+bool network\+\_\+communication.\+Network\+Communication.\+running = True}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00043}{43}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!tcp\_port@{tcp\_port}}
+\index{tcp\_port@{tcp\_port}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{tcp\_port}{tcp\_port}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097} 
+network\+\_\+communication.\+Network\+Communication.\+tcp\+\_\+port = tcp\+\_\+port}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00035}{35}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+\Hypertarget{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}\index{network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}!tcp\_server@{tcp\_server}}
+\index{tcp\_server@{tcp\_server}!network\_communication.NetworkCommunication@{network\_communication.NetworkCommunication}}
+\doxysubsubsection{\texorpdfstring{tcp\_server}{tcp\_server}}
+{\footnotesize\ttfamily \label{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9} 
+network\+\_\+communication.\+Network\+Communication.\+tcp\+\_\+server = socket.\+socket(socket.\+AF\+\_\+\+INET, socket.\+SOCK\+\_\+\+STREAM)}
+
+
+
+Definition at line \mbox{\hyperlink{network__communication_8py_source_l00036}{36}} of file \mbox{\hyperlink{network__communication_8py_source}{network\+\_\+communication.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{network__communication_8py}{network\+\_\+communication.\+py}}\end{DoxyCompactItemize}

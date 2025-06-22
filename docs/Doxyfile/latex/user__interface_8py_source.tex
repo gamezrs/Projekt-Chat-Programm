@@ -1,0 +1,126 @@
+\doxysection{user\+\_\+interface.\+py}
+\hypertarget{user__interface_8py_source}{}\label{user__interface_8py_source}\mbox{\hyperlink{user__interface_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00001}\mbox{\hyperlink{namespaceuser__interface}{00001}}\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00002}00002\ \textcolor{stringliteral}{@file\ user\_interface.py}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00003}00003\ \textcolor{stringliteral}{@brief\ CLI-\/Schnittstelle\ für\ Benutzerinteraktion\ und\ Befehlsverarbeitung}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00006}00006\ \textcolor{keyword}{import}\ threading}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00007}00007\ \textcolor{keyword}{from}\ queue\ \textcolor{keyword}{import}\ Queue}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00008}00008\ \textcolor{keyword}{import}\ time}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00010}\mbox{\hyperlink{classuser__interface_1_1_user_interface}{00010}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface}{UserInterface}}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00011}00011\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ @class\ UserInterface}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00013}00013\ \textcolor{stringliteral}{\ \ \ \ @brief\ Verwaltet\ die\ Kommandozeilenschnittstelle\ und\ leitet\ Befehle\ weiter}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00014}00014\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00015}00015\ \textcolor{stringliteral}{\ \ \ \ @details}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ -\/\ Parst\ Benutzereingaben\ und\ wandelt\ sie\ in\ strukturierte\ Befehle\ um}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ -\/\ Kommuniziert\ mit\ anderen\ Komponenten\ über\ Queues}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ -\/\ Zeigt\ Systemnachrichten\ und\ eingehende\ Nachrichten\ in\ Echtzeit\ an}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00020}00020\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00021}\mbox{\hyperlink{classuser__interface_1_1_user_interface_a685a3c99f00f84b853ac05a8074c8d0a}{00021}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface_a685a3c99f00f84b853ac05a8074c8d0a}{\_\_init\_\_}}(self,\ command\_queue:\ Queue,\ response\_queue:\ Queue):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00023}00023\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Konstruktor\ initialisiert\ Queues\ und\ Statusvariablen}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00024}00024\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ command\_queue\ Queue\ für\ ausgehende\ Befehle}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00025}00025\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ response\_queue\ Queue\ für\ eingehende\ Antworten}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00026}00026\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00027}\mbox{\hyperlink{classuser__interface_1_1_user_interface_ae9e5dfd108a036e62ce87d2b5362dda9}{00027}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ae9e5dfd108a036e62ce87d2b5362dda9}{command\_queue}}\ =\ command\_queue}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00028}\mbox{\hyperlink{classuser__interface_1_1_user_interface_acca856ebd04cec104fdd8b77b8134734}{00028}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_acca856ebd04cec104fdd8b77b8134734}{response\_queue}}\ =\ response\_queue}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00029}\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{00029}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00031}\mbox{\hyperlink{classuser__interface_1_1_user_interface_a6796eedd79c08d152a18f0e894d7ac80}{00031}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface_a6796eedd79c08d152a18f0e894d7ac80}{start}}(self):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00033}00033\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Hauptstartroutine\ der\ CLI}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Startet\ zwei\ Threads:}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00035}00035\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 1.\ Eingabeverarbeitung\ (frontend)}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00036}00036\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2.\ Antwortverarbeitung\ (backend)}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00037}00037\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ input\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_a3ee6dd5717fa264f2a97c26a6e23cdf5}{\_input\_loop}})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ logging\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_a8c7a3c60b6cba4b3b6315036fb204995}{\_logging\_loop}})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ input\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ logging\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ input\_thread.start()}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ logging\_thread.start()}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Hauptthread\ läuft\ weiter,\ bis\ Shutdown}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(0.1)}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00049}\mbox{\hyperlink{classuser__interface_1_1_user_interface_a3ee6dd5717fa264f2a97c26a6e23cdf5}{00049}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface_a3ee6dd5717fa264f2a97c26a6e23cdf5}{\_input\_loop}}(self):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00051}00051\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Verarbeitet\ kontinuierlich\ Benutzereingaben}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00052}00052\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Parst\ Eingaben\ und\ leitet\ sie\ an\ entsprechende\ Module\ weiter}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00053}00053\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ user\_input\ =\ input(\textcolor{stringliteral}{"{}>\ "{}})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ command\ =\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_acb91baca80ff1b14fe0d2100c0ee26df}{\_parse\_command}}(user\_input)}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ command:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ae9e5dfd108a036e62ce87d2b5362dda9}{command\_queue}}.put(command)}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ command[\textcolor{stringliteral}{'type'}]\ ==\ \textcolor{stringliteral}{'exit'}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ EOFError:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00064}00064\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00065}\mbox{\hyperlink{classuser__interface_1_1_user_interface_acb91baca80ff1b14fe0d2100c0ee26df}{00065}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface_acb91baca80ff1b14fe0d2100c0ee26df}{\_parse\_command}}(self,\ input\_str:\ str)\ -\/>\ dict:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00067}00067\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Zerlegt\ Benutzereingaben\ in\ strukturierte\ Befehle}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00068}00068\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ input\_str\ Roh-\/Eingabe\ des\ Nutzers}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00069}00069\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @return\ Dictionary\ mit\ Schlüsseln:\ 'type',\ 'target',\ 'content'}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00070}00070\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @retval\ None\ bei\ ungültigen\ Befehlen}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00071}00071\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00072}00072\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Unterstützte\ Befehle:}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00073}00073\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ join:\ Beitritt\ zum\ Netzwerk}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00074}00074\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ who:\ Zeigt\ bekannte\ Peers\ an}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00075}00075\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ msg\ <peer>\ <text>:\ Sendet\ Textnachricht}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00076}00076\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ img\ <peer>\ <pfad>:\ Sendet\ Bild}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00077}00077\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ leave:\ Verlässt\ das\ Netzwerk}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00078}00078\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ config:\ Zeigt\ Konfiguration}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00079}00079\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ -\/\ exit:\ Beendet\ die\ Anwendung}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00080}00080\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ parts\ =\ input\_str.split(maxsplit=1)}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ parts:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ cmd\_type\ =\ parts[0].lower()}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ command\ =\ \{\textcolor{stringliteral}{'type'}:\ cmd\_type\}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ cmd\_type\ \textcolor{keywordflow}{in}\ (\textcolor{stringliteral}{'msg'},\ \textcolor{stringliteral}{'img'}):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Erwartet\ Format:\ <cmd>\ <target>\ <content>}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ subparts\ =\ parts[1].split(maxsplit=1)\ \textcolor{keywordflow}{if}\ len(parts)\ >\ 1\ \textcolor{keywordflow}{else}\ []}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(subparts)\ <\ 2:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Ungültige\ Eingabe:\ Ziel\ und\ Inhalt\ benötigt."{}})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ command[\textcolor{stringliteral}{'target'}]\ =\ subparts[0]}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ command[\textcolor{stringliteral}{'content'}]\ =\ subparts[1]}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ cmd\_type\ \textcolor{keywordflow}{in}\ (\textcolor{stringliteral}{'join'},\ \textcolor{stringliteral}{'leave'},\ \textcolor{stringliteral}{'who'},\ \textcolor{stringliteral}{'exit'},\ \textcolor{stringliteral}{'config'}):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Keine\ weiteren\ Argumente}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{pass}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Unbekannter\ Befehl:\ \{cmd\_type\}"{}})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ command}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00105}\mbox{\hyperlink{classuser__interface_1_1_user_interface_a8c7a3c60b6cba4b3b6315036fb204995}{00105}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classuser__interface_1_1_user_interface_a8c7a3c60b6cba4b3b6315036fb204995}{\_logging\_loop}}(self):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00107}00107\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Zeigt\ Systemnachrichten\ und\ eingehende\ Chat-\/Nachrichten\ an}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00108}00108\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Überwacht\ die\ response\_queue\ kontinuierlich\ und\ zeigt\ Nachrichten\ an}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00109}00109\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_ad84f05397c82ab444c1fe1dca1717a04}{running}}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_acca856ebd04cec104fdd8b77b8134734}{response\_queue}}.empty():}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ message\ =\ self.\mbox{\hyperlink{classuser__interface_1_1_user_interface_acca856ebd04cec104fdd8b77b8134734}{response\_queue}}.get()}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Systemnachrichten\ formatieren}}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(message,\ dict):}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ message[\textcolor{stringliteral}{'type'}]\ ==\ \textcolor{stringliteral}{'system'}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)n[SYSTEM]\ \{message['content']\}\(\backslash\)n>\ "{}},\ end=\textcolor{stringliteral}{"{}"{}},\ flush=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ message[\textcolor{stringliteral}{'type'}]\ ==\ \textcolor{stringliteral}{'message'}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)n[\{message['sender']\}]\ \{message['content']\}\(\backslash\)n>\ "{}},\ end=\textcolor{stringliteral}{"{}"{}},\ flush=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)n[SYSTEM]\ \{message\}\(\backslash\)n>\ "{}},\ end=\textcolor{stringliteral}{"{}"{}},\ flush=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{user__interface_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(0.1)}
+
+\end{DoxyCode}

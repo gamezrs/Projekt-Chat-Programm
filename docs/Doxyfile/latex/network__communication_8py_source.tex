@@ -1,0 +1,173 @@
+\doxysection{network\+\_\+communication.\+py}
+\hypertarget{network__communication_8py_source}{}\label{network__communication_8py_source}\mbox{\hyperlink{network__communication_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00001}\mbox{\hyperlink{namespacenetwork__communication}{00001}}\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00002}00002\ \textcolor{stringliteral}{@file\ network\_communication.py}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00003}00003\ \textcolor{stringliteral}{@brief\ Handhabt\ TCP-\/basierte\ Nachrichten-\/\ und\ Bildübertragung}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00006}00006\ \textcolor{keyword}{import}\ socket}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00008}00008\ \textcolor{keyword}{import}\ threading}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00009}00009\ \textcolor{keyword}{import}\ time}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00010}00010\ \textcolor{keyword}{import}\ json}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00011}00011\ \textcolor{keyword}{from}\ multiprocessing\ \textcolor{keyword}{import}\ Manager}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00012}00012\ \textcolor{keyword}{from}\ datetime\ \textcolor{keyword}{import}\ datetime}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00014}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication}{00014}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication}{NetworkCommunication}}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00015}00015\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ @class\ NetworkCommunication}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ @brief\ Verwaltet\ TCP-\/Kommunikation\ mit\ Peers}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ @details}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ -\/\ Startet\ einen\ TCP-\/Server\ für\ eingehende\ Verbindungen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ -\/\ Verarbeitet\ Textnachrichten\ und\ Bildübertragungen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00022}00022\ \textcolor{stringliteral}{\ \ \ \ -\/\ Implementiert\ einen\ Handshake-\/Mechanismus\ für\ zuverlässigen\ Bildtransfer}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00023}00023\ \textcolor{stringliteral}{\ \ \ \ -\/\ Speichert\ empfangene\ Bilder\ im\ konfigurierten\ Verzeichnis}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00024}00024\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00025}00025\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00026}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_acde749ee543c6f4078301892a7ab16f9}{00026}}\ \ \ \ \ CHUNK\_SIZE\ =\ 4096\ \ \textcolor{comment}{\#\ Bytes\ für\ Bildtransfer}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00028}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ae786e969cf0d6ef258cddac76ef31a4b}{00028}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ae786e969cf0d6ef258cddac76ef31a4b}{\_\_init\_\_}}(self,\ tcp\_port:\ int,\ img\_dir:\ str,\ peers:\ Manager().dict()):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00030}00030\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Initialisiert\ TCP-\/Server\ und\ Konfiguration}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00031}00031\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ tcp\_port\ Port\ für\ TCP-\/Kommunikation}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00032}00032\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ img\_dir\ Verzeichnis\ zum\ Speichern\ von\ Bildern}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00033}00033\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ peers\ Shared\ Dictionary\ der\ bekannten\ Peers}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00035}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097}{00035}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a9a08a4094906b952a04b6e34483db097}{tcp\_port}}\ =\ tcp\_port}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00036}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{00036}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}\ =\ socket.socket(socket.AF\_INET,\ socket.SOCK\_STREAM)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.setsockopt(socket.SOL\_SOCKET,\ socket.SO\_REUSEADDR,\ 1)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.bind((\textcolor{stringliteral}{''},\ tcp\_port))}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.listen(5)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.settimeout(1.0)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00041}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}{00041}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}{img\_dir}}\ =\ img\_dir}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00042}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049}{00042}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ade886b20c0b0329becd29de12bf6d049}{peers}}\ =\ peers}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00043}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{00043}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{running}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Stelle\ sicher,\ dass\ das\ Bildverzeichnis\ existiert}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ os.makedirs(img\_dir,\ exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00048}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad3d410e44068238c979b79bc8c62da3c}{00048}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad3d410e44068238c979b79bc8c62da3c}{start}}(self):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00050}00050\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Startet\ TCP-\/Server\ und\ Nachrichtenverarbeitung}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00051}00051\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ accept\_thread\ =\ threading.Thread(target=self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0}{\_accept\_connections}})}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ accept\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ accept\_thread.start()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{running}}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ time.sleep(0.1)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.close()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00061}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0}{00061}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_aeef8c77727a5430bc9f0f624c0863da0}{\_accept\_connections}}(self):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00063}00063\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Akzeptiert\ eingehende\ TCP-\/Verbindungen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00064}00064\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Startet\ für\ jede\ Verbindung\ einen\ Handler-\/Thread}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00065}00065\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{running}}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ client\_socket,\ addr\ =\ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a7d0355bc5c770704ac15a1db7d3de7a9}{tcp\_server}}.accept()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handler\_thread\ =\ threading.Thread(}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target=self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff}{\_handle\_client}},\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ args=(client\_socket,)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handler\_thread.daemon\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ handler\_thread.start()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ socket.timeout:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ socket.error:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a80ff675d30f75d69d70d3b0b2e7285c4}{running}}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00081}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff}{00081}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_ad6f7efed8a6a691c18e5fad9e10d37ff}{\_handle\_client}}(self,\ client\_socket:\ socket.socket):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00083}00083\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Verarbeitet\ eingehende\ TCP-\/Datenströme}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00084}00084\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ client\_socket\ Socket\ des\ verbundenen\ Clients}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00085}00085\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Empfange\ den\ Header\ (erste\ 1024\ Bytes)}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ header\_data\ =\ client\_socket.recv(1024).decode().strip()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ header\_data:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ header\_data.startswith(\textcolor{stringliteral}{"{}MSG:"{}}):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac}{\_process\_message}}(header\_data,\ client\_socket)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ header\_data.startswith(\textcolor{stringliteral}{"{}IMG:"{}}):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20}{\_process\_image}}(header\_data,\ client\_socket)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{finally}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ client\_socket.close()}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00098}00098\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00099}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac}{00099}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a02b4276f6dcc27ea688002710b28f6ac}{\_process\_message}}(self,\ header:\ str,\ socket:\ socket.socket):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00101}00101\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Verarbeitet\ eingehende\ Textnachrichten}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00102}00102\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ header\ Nachrichtenheader}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00103}00103\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ socket\ Verbindungssocket}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00104}00104\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00105}00105\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Nachrichtenformat:}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00106}00106\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ MSG:<sender>:<receiver>:<timestamp>:<message>}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00107}00107\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Format:\ MSG:<Sender>:<Empfänger>:<Zeitstempel>:<Text>}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ parts\ =\ header.split(\textcolor{stringliteral}{':'},\ 4)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(parts)\ <\ 5:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ sender\ =\ parts[1]}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ receiver\ =\ parts[2]}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ timestamp\ =\ parts[3]}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ message\_text\ =\ parts[4]}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Hier\ würde\ die\ Nachricht\ an\ die\ UI\ weitergeleitet\ werden}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Nachricht\ von\ \{sender\}:\ \{message\_text\}"{}})}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00120}00120\ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00121}\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20}{00121}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a8a065b40b425310f0b16a29a66eada20}{\_process\_image}}(self,\ header:\ str,\ socket:\ socket.socket):}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00123}00123\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @brief\ Verarbeitet\ Bildübertragungen\ mit\ Handshake}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00124}00124\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ header\ Bildmetadaten\ (Größe,\ Dateiname)}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00125}00125\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @param\ socket\ Verbindungssocket}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00126}00126\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00127}00127\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ @details\ Ablauf:}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00128}00128\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ 1.\ Header\ parsen:\ IMG:<Größe>:<Dateiname>}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00129}00129\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ 2.\ ACK\ senden}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00130}00130\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ 3.\ Daten\ empfangen\ und\ prüfen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00131}00131\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ 4.\ Bild\ speichern\ oder\ verwerfen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00132}00132\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Format:\ IMG:<Größe>:<Dateiname>}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ parts\ =\ header.split(\textcolor{stringliteral}{':'},\ 2)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(parts)\ <\ 3:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ size\ =\ int(parts[1])}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ filename\ =\ parts[2]}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ ValueError:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Bestätigung\ senden}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ socket.sendall(b\textcolor{stringliteral}{"{}ACK"{}})}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Bild\ empfangen}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ received\ =\ 0}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ image\_data\ =\ b\textcolor{stringliteral}{''}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ received\ <\ size:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ chunk\ =\ socket.recv(min(self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_acde749ee543c6f4078301892a7ab16f9}{CHUNK\_SIZE}},\ size\ -\/\ received))}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ chunk:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ image\_data\ +=\ chunk}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ received\ +=\ len(chunk)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ socket.error:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Prüfen,\ ob\ vollständig}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ received\ ==\ size:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Bild\ speichern}}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ filepath\ =\ os.path.join(self.\mbox{\hyperlink{classnetwork__communication_1_1_network_communication_a51325d90aec0d351dc23b8979218ccc4}{img\_dir}},\ filename)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(filepath,\ \textcolor{stringliteral}{'wb'})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f.write(image\_data)}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Bild\ erfolgreich\ empfangen:\ \{filepath\}"{}})}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{network__communication_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Fehler:\ Unvollständiges\ Bild\ empfangen\ (\{received\}/\{size\}\ Bytes)"{}})}
+
+\end{DoxyCode}

@@ -1,0 +1,72 @@
+\chapter{Chat-\/\+Programm -\/ Technische Dokumentation }
+\hypertarget{index}{}\label{index}\index{Chat-\/Programm -\/ Technische Dokumentation@{Chat-\/Programm -\/ Technische Dokumentation}}
+\hypertarget{index_intro_sec}{}\doxysection{\texorpdfstring{Einführung}{Einführung}}\label{index_intro_sec}
+Simple\+Chat ist ein Peer-\/to-\/\+Peer-\/\+Chat-\/\+Programm zur lokalen Kommunikation in IP-\/\+Netzwerken. Es basiert auf dem {\bfseries{Simple Local Chat Protocol (SLCP)}} und ermöglicht die Übertragung von\+:
+\begin{DoxyItemize}
+\item Textnachrichten
+\item Bildern
+\item Systemnachrichten
+\end{DoxyItemize}
+
+\hypertarget{index_features_sec}{}\doxysection{\texorpdfstring{Hauptfunktionen}{Hauptfunktionen}}\label{index_features_sec}
+
+\begin{DoxyItemize}
+\item {\bfseries{Automatische}} Peer-\/\+Entdeckung via UDP-\/\+Broadcast
+\item {\bfseries{Zuverlässiger}} Bildtransfer mit Handshake-\/\+Mechanismus
+\item {\bfseries{CLI-\/\+Oberfläche}} für einfache Bedienung
+\item {\bfseries{Modulare}} Architektur (siehe \doxysectlink{index_architecture_sec}{Systemarchitektur}{1})
+\end{DoxyItemize}\hypertarget{index_architecture_sec}{}\doxysection{\texorpdfstring{Systemarchitektur}{Systemarchitektur}}\label{index_architecture_sec}
+\hypertarget{index_components}{}\doxysubsection{\texorpdfstring{Unterkomponenten}{Unterkomponenten}}\label{index_components}
+\tabulinesep=1mm
+\begin{longtabu}spread 0pt [c]{*{2}{|X[-1]}|}
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Modul  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Beschreibung  }\\\cline{1-2}
+\endfirsthead
+\hline
+\endfoot
+\hline
+\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Modul  }&\PBS\centering \cellcolor{\tableheadbgcolor}\textbf{ Beschreibung  }\\\cline{1-2}
+\endhead
+\doxylink{user__interface_8py}{user\+\_\+interface.\+py}  &CLI für Nutzerinteraktion  \\\cline{1-2}
+\doxylink{discovery__service_8py}{discovery\+\_\+service.\+py}  &Verwaltet Peer-\/\+Liste via UDP  \\\cline{1-2}
+\doxylink{network__communication_8py}{network\+\_\+communication.\+py}  &TCP-\/basierte Nachrichtenübertragung  \\\cline{1-2}
+\end{longtabu}
+\hypertarget{index_dataflow}{}\doxysubsection{\texorpdfstring{Datenfluss}{Datenfluss}}\label{index_dataflow}
+
+\begin{DoxyImageNoCaption}
+  \mbox{\includegraphics[width=\textwidth,height=\textheight/2,keepaspectratio=true]{dot_inline_dotgraph_1}}
+\end{DoxyImageNoCaption}
+\hypertarget{index_usage_sec}{}\doxysection{\texorpdfstring{Schnellstart}{Schnellstart}}\label{index_usage_sec}
+
+\begin{DoxyEnumerate}
+\item Konfiguration anpassen\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{[user]}
+\DoxyCodeLine{name\ =\ "{}Ihr\_Name"{}}
+\DoxyCodeLine{udp\_port\ =\ 4000}
+\DoxyCodeLine{tcp\_port\ =\ 5000}
+
+\end{DoxyCode}
+
+\item Programm starten\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{python\ main.py\ config.toml}
+
+\end{DoxyCode}
+
+\item Verfügbare Befehle\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{join\ \ \ \ -\/\ Netzwerk\ beitreten}
+\DoxyCodeLine{msg\ \ \ \ \ -\/\ Nachricht\ senden}
+\DoxyCodeLine{img\ \ \ \ \ -\/\ Bild\ senden}
+\DoxyCodeLine{who\ \ \ \ \ -\/\ Peers\ anzeigen}
+
+\end{DoxyCode}
+
+\end{DoxyEnumerate}\hypertarget{index_links_sec}{}\doxysection{\texorpdfstring{Weiterführend}{Weiterführend}}\label{index_links_sec}
+
+\begin{DoxyItemize}
+\item Quellcode-\/Übersicht
+\item SLCP-\/\+Protokoll Details
+\item Fehlerbehebung 
+\end{DoxyItemize}

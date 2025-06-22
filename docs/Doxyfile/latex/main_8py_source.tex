@@ -1,0 +1,78 @@
+\doxysection{main.\+py}
+\hypertarget{main_8py_source}{}\label{main_8py_source}\mbox{\hyperlink{main_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00001}\mbox{\hyperlink{namespacemain}{00001}}\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00002}00002\ \textcolor{stringliteral}{@file\ main.py}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00003}00003\ \textcolor{stringliteral}{@brief\ Hauptmodul\ für\ Initialisierung\ und\ Prozessmanagement}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00006}00006\ \textcolor{keyword}{import}\ multiprocessing}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00007}00007\ \textcolor{keyword}{import}\ toml}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00008}00008\ \textcolor{keyword}{import}\ signal}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00009}00009\ \textcolor{keyword}{from}\ user\_interface\ \textcolor{keyword}{import}\ UserInterface}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00010}00010\ \textcolor{keyword}{from}\ discovery\_service\ \textcolor{keyword}{import}\ DiscoveryService}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00011}00011\ \textcolor{keyword}{from}\ network\_communication\ \textcolor{keyword}{import}\ NetworkCommunication}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00013}\mbox{\hyperlink{namespacemain_ad0d4211a6f2ecd263279953e146be327}{00013}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacemain}{main}}(config\_path:\ str):}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00014}00014\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00015}00015\ \textcolor{stringliteral}{\ \ \ \ @brief\ Hauptfunktion\ des\ SimpleChat-\/Programms}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ @param\ config\_path\ Pfad\ zur\ Konfigurationsdatei}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ @details}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ -\/\ Lädt\ die\ Konfiguration\ aus\ der\ TOML-\/Datei}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ -\/\ Erstellt\ gemeinsame\ Datenstrukturen\ mit\ multiprocessing.Manager}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ -\/\ Initialisiert\ alle\ Komponenten}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00022}00022\ \textcolor{stringliteral}{\ \ \ \ -\/\ Startet\ Prozesse\ und\ verwaltet\ Graceful\ Shutdown}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00023}00023\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00024}00024\ \ \ \ \ \textcolor{comment}{\#\ Konfiguration\ laden}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00025}00025\ \ \ \ \ config\ =\ toml.load(config\_path)}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00026}00026\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00027}00027\ \ \ \ \ \textcolor{comment}{\#\ Gemeinsame\ Datenstrukturen\ erstellen}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00028}00028\ \ \ \ \ manager\ =\ multiprocessing.Manager()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00029}00029\ \ \ \ \ peers\ =\ manager.dict()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00030}00030\ \ \ \ \ command\_queue\ =\ multiprocessing.Queue()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00031}00031\ \ \ \ \ response\_queue\ =\ multiprocessing.Queue()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00032}00032\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00033}00033\ \ \ \ \ \textcolor{comment}{\#\ Komponenten\ initialisieren}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00034}00034\ \ \ \ \ ui\ =\ \mbox{\hyperlink{classuser__interface_1_1_user_interface}{UserInterface}}(command\_queue,\ response\_queue)}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00035}00035\ \ \ \ \ discovery\ =\ \mbox{\hyperlink{classdiscovery__service_1_1_discovery_service}{DiscoveryService}}(}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ config[\textcolor{stringliteral}{'user'}][\textcolor{stringliteral}{'udp\_port'}],\ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ peers,}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ config[\textcolor{stringliteral}{'user'}][\textcolor{stringliteral}{'name'}],}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ config[\textcolor{stringliteral}{'user'}][\textcolor{stringliteral}{'tcp\_port'}]}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00040}00040\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00041}00041\ \ \ \ \ network\ =\ \mbox{\hyperlink{classnetwork__communication_1_1_network_communication}{NetworkCommunication}}(}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ config[\textcolor{stringliteral}{'user'}][\textcolor{stringliteral}{'tcp\_port'}],}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ config[\textcolor{stringliteral}{'user'}][\textcolor{stringliteral}{'img\_dir'}],}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ peers}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00045}00045\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00046}00046\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00047}00047\ \ \ \ \ \textcolor{comment}{\#\ Prozesse\ starten}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00048}00048\ \ \ \ \ processes\ =\ [}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ multiprocessing.Process(target=ui.start),}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ multiprocessing.Process(target=discovery.run),}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ multiprocessing.Process(target=network.start)}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00052}00052\ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00053}00053\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00054}00054\ \ \ \ \ \textcolor{keywordflow}{for}\ p\ \textcolor{keywordflow}{in}\ processes:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ p.start()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00056}00056\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00057}00057\ \ \ \ \ \textcolor{comment}{\#\ Graceful\ Shutdown\ bei\ SIGINT\ (Ctrl+C)}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00058}00058\ \ \ \ \ \textcolor{keyword}{def\ }signal\_handler(sig,\ frame):}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ p\ \textcolor{keywordflow}{in}\ processes:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ p.terminate()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ exit(0)}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00062}00062\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00063}00063\ \ \ \ \ signal.signal(signal.SIGINT,\ signal\_handler)}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00064}00064\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00065}00065\ \ \ \ \ \textcolor{comment}{\#\ Auf\ Prozessende\ warten}}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00066}00066\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ p\ \textcolor{keywordflow}{in}\ processes:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ p.join()}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00069}00069\ \ \ \ \ \textcolor{keywordflow}{except}\ KeyboardInterrupt:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ signal\_handler(\textcolor{keywordtype}{None},\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00072}00072\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{main_8py_source_l00073}00073\ \ \ \ \ \mbox{\hyperlink{namespacemain}{main}}(\textcolor{stringliteral}{"{}config.toml"{}})}
+
+\end{DoxyCode}
